@@ -10,6 +10,7 @@
   </head>
   <body>
     <div id="app">
+      <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
       <!-- Sidebar Navigation -->
       <aside class="sidebar">
         <div class="logo-container">
@@ -63,9 +64,14 @@
       <main class="main-content">
         <!-- Top Bar -->
         <header class="top-bar">
-          <div class="search-bar">
-            <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
-            <input type="text" placeholder="검색..." />
+          <div style="display: flex; gap: 1rem; align-items: center;">
+            <button id="menu-toggle" class="mobile-only-btn" style="background: transparent; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer; padding: 4px;" title="메뉴">
+              <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="search-bar">
+              <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
+              <input type="text" placeholder="검색..." />
+            </div>
           </div>
           
           <div style="display: flex; gap: 0.8rem; align-items: center;">

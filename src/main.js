@@ -7,6 +7,9 @@ import { renderAdmin, initAdminView } from './views/admin.js';
 // DOM Elements
 const contentView = document.getElementById('content-view');
 const navItems = document.querySelectorAll('.nav-item');
+const sidebar = document.querySelector('.sidebar');
+const menuToggle = document.getElementById('menu-toggle');
+const sidebarBackdrop = document.getElementById('sidebar-backdrop');
 
 // View Map
 const views = {
@@ -30,8 +33,28 @@ function setupNavigation() {
 
       const viewName = item.getAttribute('data-view');
       navigate(viewName);
+
+      // Close sidebar on mobile after navigation
+      if (window.innerWidth <= 768 || document.body.classList.contains('mobile-mode')) {
+        closeSidebar();
+      }
     });
   });
+}
+
+function toggleSidebar() {
+  const isOpen = sidebar.classList.contains('open');
+  if (isOpen) {
+    closeSidebar();
+  } else {
+    sidebar.classList.add('open');
+    sidebarBackdrop.classList.add('active');
+  }
+}
+
+function closeSidebar() {
+  sidebar.classList.remove('open');
+  sidebarBackdrop.classList.remove('active');
 }
 
 // Render View
@@ -174,7 +197,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (mobileToggle) {
     mobileToggle.addEventListener('click', () => {
       document.body.classList.toggle('mobile-mode');
+      // Ensure sidebar is closed when toggling simulator mode
+      closeSidebar();
     });
+  }
+
+  // Hamburger Menu Toggle
+  if (menuToggle) {
+    menuToggle.addEventListener('click', toggleSidebar);
+  }
+
+  // Backdrop click to close
+  if (sidebarBackdrop) {
+    sidebarBackdrop.addEventListener('click', closeSidebar);
   }
 
   // Load Chart.js via script tag for simplicity in prototype, or bundle it
