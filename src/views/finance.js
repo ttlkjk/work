@@ -52,6 +52,9 @@ export function updateFinanceSummary() {
   saveSummaryData();
 }
 
+// Initial Sync
+updateFinanceSummary();
+
 let hospitalGoals = JSON.parse(localStorage.getItem('hospitalGoals')) || [
   { id: 1, name: '(주) 메디텍코리아', goal: 10000000, current: 4500000, color: 'linear-gradient(90deg, #6366f1, #0ea5e9)' },
   { id: 2, name: '대한병원 클라우드', goal: 15000000, current: 12000000, color: '#10b981' },
@@ -343,6 +346,7 @@ export function renderFinance() {
 }
 
 export function initFinanceView() {
+  updateFinanceSummary();
   const modal = document.getElementById('register-modal');
   const openBtn = document.getElementById('open-register-modal');
   const closeBtns = document.querySelectorAll('.close-modal');
@@ -598,3 +602,6 @@ export function initFinanceView() {
     });
   }
 }
+
+// Ensure summary is synced when module loads
+updateFinanceSummary();
