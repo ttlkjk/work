@@ -169,6 +169,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Mobile View Toggle
+  const mobileToggle = document.getElementById('mobile-toggle');
+  if (mobileToggle) {
+    mobileToggle.addEventListener('click', () => {
+      document.body.classList.toggle('mobile-mode');
+    });
+  }
+
   // Load Chart.js via script tag for simplicity in prototype, or bundle it
   const chartScript = document.createElement('script');
   chartScript.src = 'https://cdn.jsdelivr.net/npm/chart.js';

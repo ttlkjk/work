@@ -301,3 +301,130 @@ body.light-mode select option {
   color: #0f172a; /* Light theme option text */
 }
 
+/* Mobile Simulator Mode */
+body.mobile-mode {
+  background: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  overflow: auto;
+  height: auto;
+}
+
+body.mobile-mode #app {
+  width: 375px;
+  max-width: 375px;
+  height: 812px;
+  border: 12px solid #111;
+  border-radius: 40px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  grid-template-columns: 1fr;
+  position: relative;
+  background: var(--bg-color);
+}
+
+body.mobile-mode .sidebar {
+  display: none;
+}
+
+body.mobile-mode .main-content {
+  width: 100%;
+  height: 100%;
+}
+
+body.mobile-mode .top-bar {
+  padding: 0.75rem 1rem;
+}
+
+body.mobile-mode .top-bar span {
+  display: none; /* Hide date on mobile to save space */
+}
+
+body.mobile-mode .search-bar {
+  display: none;
+}
+
+body.mobile-mode .content-viewport {
+  padding: 1rem !important;
+}
+
+body.mobile-mode h1 {
+  font-size: 1.4rem !important;
+}
+
+body.mobile-mode h3 {
+  font-size: 1rem !important;
+}
+
+body.mobile-mode p {
+  font-size: 0.8rem !important;
+}
+
+/* Business View Specific Fixes for Mobile */
+body.mobile-mode #gantt-daily, 
+body.mobile-mode #gantt-weekly, 
+body.mobile-mode #gantt-monthly {
+  padding: 0.75rem !important;
+}
+
+body.mobile-mode [style*="grid-template-columns: 200px"] {
+  grid-template-columns: 100px repeat(7, 1fr) !important;
+}
+
+body.mobile-mode .edit-project-name {
+  padding: 0.5rem !important;
+  font-size: 0.75rem !important;
+}
+
+body.mobile-mode .gantt-cell {
+  padding: 2px 0 !important;
+}
+
+body.mobile-mode .edit-target {
+  padding: 0.4rem !important;
+  font-size: 0.65rem !important;
+}
+
+body.mobile-mode #new-project-btn {
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.8rem !important;
+}
+
+body.mobile-mode .scale-controls button {
+  padding: 0.4rem 0.6rem !important;
+  font-size: 0.75rem !important;
+}
+
+/* Base Responsive Adjustments */
+@media (max-width: 1024px) {
+  #app {
+    grid-template-columns: 80px 1fr;
+  }
+  .sidebar span, .logo-container span, .user-profile div:last-child {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  #app {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    display: none;
+  }
+  .search-bar {
+    width: 200px;
+  }
+  .top-bar span {
+    display: none;
+  }
+  .content-viewport {
+    padding: 1rem;
+  }
+  h1 {
+    font-size: 1.5rem !important;
+  }
+}
+
