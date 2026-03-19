@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dosicare ERP - 통합 관리 시스템</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Sidebar Navigation -->
+      <aside class="sidebar">
+        <div class="logo-container">
+          <img src="/src/assets/logo.png" alt="Dosicare Logo" style="height: 48px; width: auto; object-fit: contain;" />
+          <span style="font-size: 1.4rem;">Dosicare ERP</span>
+        </div>
+        
+        <ul class="nav-links">
+          <li>
+            <a href="#" class="nav-item" data-view="dashboard">
+              <i class="fa-solid fa-chart-pie"></i>
+              <span>대시보드</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="nav-item active" data-view="business">
+              <i class="fa-solid fa-calendar-check"></i>
+              <span>사업 계획</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="nav-item" data-view="crm">
+              <i class="fa-solid fa-users"></i>
+              <span>고객 관리 (CRM)</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="nav-item" data-view="finance">
+              <i class="fa-solid fa-wallet"></i>
+              <span>재무 관리</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="nav-item" data-view="admin">
+              <i class="fa-solid fa-gear"></i>
+              <span>시스템 설정</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="user-profile" style="margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+          <div class="avatar">D</div>
+          <div>
+            <div style="font-weight: 600; font-size: 0.9rem;">관리자</div>
+            <div style="color: var(--text-muted); font-size: 0.75rem;">Admin Account</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+          <div class="search-bar">
+            <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
+            <input type="text" placeholder="검색..." />
+          </div>
+          
+          <div style="display: flex; gap: 1rem; align-items: center;">
+            <button id="theme-toggle" style="background: transparent; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer; padding: 4px;">
+              <i class="fa-regular fa-moon"></i>
+            </button>
+            <button style="background: transparent; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer;">
+              <i class="fa-regular fa-bell"></i>
+            </button>
+            <div style="width: 1px; height: 20px; background: var(--glass-border);"></div>
+            <span style="font-size: 0.9rem; font-weight: 500;">2026.03.18</span>
+          </div>
+        </header>
+
+        <!-- Dynamic Content Viewport -->
+        <div id="content-view" class="content-viewport">
+          <!-- Views will be injected here by main.js -->
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
