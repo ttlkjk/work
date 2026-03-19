@@ -26,6 +26,32 @@ function saveSummaryData() {
   localStorage.setItem('financeSummary', JSON.stringify(summaryData));
 }
 
+export function updateFinanceSummary() {
+  const currentMonth = '2026.03';
+  const monthItems = financeItems.filter(item => item.date.startsWith(currentMonth));
+  
+  const sales = monthItems
+    .filter(item => item.type === '입금')
+    .reduce((sum, item) => sum + item.amount, 0);
+    
+  const expense = Math.abs(monthItems
+    .filter(item => item.type === '출금')
+    .reduce((sum, item) => sum + item.amount, 0));
+    
+  summaryData.monthlySales = sales;
+  summaryData.monthlyExpense = expense;
+  summaryData.netProfit = sales - expense;
+  
+  // Calculate profit margin
+  if (sales > 0) {
+    summaryData.profitMargin = ((summaryData.netProfit / sales) * 100).toFixed(1) + '%';
+  } else {
+    summaryData.profitMargin = '0%';
+  }
+  
+  saveSummaryData();
+}
+
 let hospitalGoals = JSON.parse(localStorage.getItem('hospitalGoals')) || [
   { id: 1, name: '(주) 메디텍코리아', goal: 10000000, current: 4500000, color: 'linear-gradient(90deg, #6366f1, #0ea5e9)' },
   { id: 2, name: '대한병원 클라우드', goal: 15000000, current: 12000000, color: '#10b981' },
@@ -238,27 +264,27 @@ export function renderFinance() {
             </div>
             <form id="summary-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                <div style="grid-column: span 2;">
-                  <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;">현재 통장 잔고 (₩)</label>
+                  <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;">현재 통장 잔고 (₩) <span style="font-size: 0.7rem; color: var(--secondary-accent); font-weight: normal;">* 입출금 시 자동 반영됩니다.</span></label>
                   <input type="number" id="summary-balance" value="${summaryData.balance}" style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 8px; padding: 0.6rem; color: var(--text-main);" required>
                </div>
                <div style="grid-column: span 2;">
-                  <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;">은행 정보 (예: 신한은행 110-***-***)</label>
+                  <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;">은행 정보</label>
                   <input type="text" id="summary-bank" value="${summaryData.bankInfo}" style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 8px; padding: 0.6rem; color: var(--text-main);">
                </div>
                <div>
-                  <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;">당월 총 매출 (₩)</label>
-                  <input type="number" id="summary-sales" value="${summaryData.monthlySales}" style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 8px; padding: 0.6rem; color: var(--text-main);" required>
+                  <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;">당월 총 매출 <span style="font-size: 0.7rem; color: #10b981;">(자동 계산됨)</span></label>
+                  <input type="number" id="summary-sales" value="${summaryData.monthlySales}" style="width: 100%; background: rgba(0,0,0,0.1); border: 1px solid var(--glass-border); border-radius: 8px; padding: 0.6rem; color: var(--text-muted);" readonly>
                </div>
                <div>
-                  <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;">매출 변동 (예: +15.2%)</label>
+                  <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;">매출 변동 (텍스트)</label>
                   <input type="text" id="summary-sales-change" value="${summaryData.salesChange}" style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 8px; padding: 0.6rem; color: var(--text-main);">
                </div>
                <div>
-                  <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;">당월 총 지출 (₩)</label>
-                  <input type="number" id="summary-expense" value="${summaryData.monthlyExpense}" style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 8px; padding: 0.6rem; color: var(--text-main);" required>
+                  <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;">당월 총 지출 <span style="font-size: 0.7rem; color: #ef4444;">(자동 계산됨)</span></label>
+                  <input type="number" id="summary-expense" value="${summaryData.monthlyExpense}" style="width: 100%; background: rgba(0,0,0,0.1); border: 1px solid var(--glass-border); border-radius: 8px; padding: 0.6rem; color: var(--text-muted);" readonly>
                </div>
                <div>
-                  <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;">지출 변동 (예: -2.1%)</label>
+                  <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;">지출 변동 (텍스트)</label>
                   <input type="text" id="summary-expense-change" value="${summaryData.expenseChange}" style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 8px; padding: 0.6rem; color: var(--text-main);">
                </div>
                <div>
@@ -366,7 +392,9 @@ export function initFinanceView() {
         // Update existing
         const index = financeItems.findIndex(item => item.id === parseInt(id));
         if (index !== -1) {
+          const oldAmount = financeItems[index].amount;
           financeItems[index] = { ...financeItems[index], date, type, category, amount, user, remarks };
+          summaryData.balance += (amount - oldAmount);
         }
       } else {
         // Add new
@@ -380,10 +408,20 @@ export function initFinanceView() {
           remarks
         };
         financeItems.unshift(newItem); 
+        summaryData.balance += amount;
       }
 
       saveFinanceItems();
+      updateFinanceSummary();
       if (tbody) tbody.innerHTML = renderTableRows();
+      
+      // Auto-refresh summary cards
+      const contentView = document.getElementById('content-view');
+      if (contentView) {
+        contentView.innerHTML = renderFinance();
+        initFinanceView();
+      }
+      
       modal.style.display = 'none';
       form.reset();
     });
@@ -394,9 +432,19 @@ export function initFinanceView() {
        if (e.target.classList.contains('delete-btn')) {
           const id = parseInt(e.target.getAttribute('data-id'));
           if (confirm('해당 입출금 내역을 삭제하시겠습니까?')) {
+             const item = financeItems.find(i => i.id === id);
+             if (item) summaryData.balance -= item.amount;
              financeItems = financeItems.filter(item => item.id !== id);
              saveFinanceItems();
+             updateFinanceSummary();
              tbody.innerHTML = renderTableRows();
+             
+             // Auto-refresh summary cards
+             const contentView = document.getElementById('content-view');
+             if (contentView) {
+               contentView.innerHTML = renderFinance();
+               initFinanceView();
+             }
           }
        } else if (e.target.classList.contains('edit-btn')) {
           const id = parseInt(e.target.getAttribute('data-id'));
@@ -451,10 +499,8 @@ export function initFinanceView() {
       e.preventDefault();
       
       summaryData = {
+        ...summaryData,
         balance: parseInt(document.getElementById('summary-balance').value),
-        monthlySales: parseInt(document.getElementById('summary-sales').value),
-        monthlyExpense: parseInt(document.getElementById('summary-expense').value),
-        netProfit: parseInt(document.getElementById('summary-profit').value),
         bankInfo: document.getElementById('summary-bank').value,
         salesChange: document.getElementById('summary-sales-change').value,
         expenseChange: document.getElementById('summary-expense-change').value,
