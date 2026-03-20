@@ -1,8 +1,17 @@
-export let users = [
+import { saveData } from '../supabase.js';
+
+const defaultUsers = [
   { id: 1, name: '홍길동', email: 'admin@dosicare.com', dept: '운영기획팀', position: '팀장', role: '마스터 관리자', date: '2026.01.01', status: '활성' },
   { id: 2, name: '이순신', email: 'finance@dosicare.com', dept: '재무회계팀', position: '과장', role: '재무 담당자', date: '2026.02.15', status: '활성' },
   { id: 3, name: '김영희', email: 'staff1@dosicare.com', dept: '고객지원팀', position: '대리', role: '일반 사용자', date: '2026.03.01', status: '활성' }
 ];
+
+export let users = JSON.parse(localStorage.getItem('admin_users')) || defaultUsers;
+
+function saveUsers() {
+  localStorage.setItem('admin_users', JSON.stringify(users));
+  saveData('admin_users', users);
+}
 
 export function renderAdmin() {
   return `
@@ -188,6 +197,7 @@ export function initAdminView() {
         const id = parseInt(e.target.getAttribute('data-id'));
         if (confirm('정말 삭제하시겠습니까?')) {
           users = users.filter(u => u.id !== id);
+          saveUsers();
           renderRows();
         }
       });
@@ -252,6 +262,7 @@ export function initAdminView() {
           status
         });
 
+        saveUsers();
         renderRows();
 
         modal.style.display = 'none';

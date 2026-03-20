@@ -102,7 +102,7 @@ export async function syncAllData() {
  * 기존 localStorage 데이터를 Supabase로 업로드합니다. (최초 마이그레이션)
  */
 async function pushLocalDataToSupabase() {
-  const keys = ['projects', 'crm_clients', 'financeItems', 'financeSummary', 'hospitalGoals'];
+  const keys = ['projects', 'crm_clients', 'financeItems', 'financeSummary', 'hospitalGoals', 'admin_users'];
   
   for (const key of keys) {
     const local = localStorage.getItem(key);
