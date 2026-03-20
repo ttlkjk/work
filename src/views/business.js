@@ -1,3 +1,5 @@
+import { saveData } from '../supabase.js';
+
 let projects = JSON.parse(localStorage.getItem('projects')) || [
   {
     id: 1,
@@ -71,6 +73,7 @@ projects.forEach(p => {
 
 function saveProjects() {
   localStorage.setItem('projects', JSON.stringify(projects));
+  saveData('projects', projects);
 }
 
 function renderGantt(scale) {

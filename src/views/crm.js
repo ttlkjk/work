@@ -1,3 +1,5 @@
+import { saveData } from '../supabase.js';
+
 let initialClients = [
   {
     id: 1,
@@ -93,6 +95,7 @@ if (!clients) {
 
 function saveClientsToStorage() {
   localStorage.setItem('crm_clients', JSON.stringify(clients));
+  saveData('crm_clients', clients);
 }
 
 export function renderCRM() {

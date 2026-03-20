@@ -1,4 +1,5 @@
 import { users } from './admin.js';
+import { saveData } from '../supabase.js';
 
 let financeItems = JSON.parse(localStorage.getItem('financeItems')) || [
   { id: 1, date: '2026.03.18', type: '출금', category: 'AWS 인프라 사용 비용', amount: -1250000, user: '이순신', remarks: '자동 결제' },
@@ -9,6 +10,7 @@ let financeItems = JSON.parse(localStorage.getItem('financeItems')) || [
 
 function saveFinanceItems() {
   localStorage.setItem('financeItems', JSON.stringify(financeItems));
+  saveData('financeItems', financeItems);
 }
 
 let summaryData = JSON.parse(localStorage.getItem('financeSummary')) || {
@@ -24,6 +26,7 @@ let summaryData = JSON.parse(localStorage.getItem('financeSummary')) || {
 
 function saveSummaryData() {
   localStorage.setItem('financeSummary', JSON.stringify(summaryData));
+  saveData('financeSummary', summaryData);
 }
 
 export function updateFinanceSummary() {
@@ -63,6 +66,7 @@ let hospitalGoals = JSON.parse(localStorage.getItem('hospitalGoals')) || [
 
 function saveHospitalGoals() {
   localStorage.setItem('hospitalGoals', JSON.stringify(hospitalGoals));
+  saveData('hospitalGoals', hospitalGoals);
 }
 
 export function renderHospitalGoals() {

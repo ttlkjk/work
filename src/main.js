@@ -3,6 +3,7 @@ import { renderBusiness, initBusinessView } from './views/business.js';
 import { renderCRM, initCRMView } from './views/crm.js';
 import { renderFinance, initFinanceView } from './views/finance.js';
 import { renderAdmin, initAdminView } from './views/admin.js';
+import { syncAllData } from './supabase.js';
 
 // DOM Elements
 const contentView = document.getElementById('content-view');
@@ -212,12 +213,15 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebarBackdrop.addEventListener('click', closeSidebar);
   }
 
-  // Load Chart.js via script tag for simplicity in prototype, or bundle it
-  const chartScript = document.createElement('script');
-  chartScript.src = 'https://cdn.jsdelivr.net/npm/chart.js';
-  chartScript.onload = () => {
-    // Navigate to default view once charts ready
-    navigate('business');
-  };
-  document.head.appendChild(chartScript);
+  // Sync data from Supabase, then load Chart.js and navigate
+  syncAllData().then(() => {
+    // Load Chart.js via script tag for simplicity in prototype, or bundle it
+    const chartScript = document.createElement('script');
+    chartScript.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+    chartScript.onload = () => {
+      // Navigate to default view once charts ready
+      navigate('business');
+    };
+    document.head.appendChild(chartScript);
+  });
 });
