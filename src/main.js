@@ -1,8 +1,8 @@
 import { renderDashboard } from './views/dashboard.js';
-import { renderBusiness, initBusinessView } from './views/business.js';
-import { renderCRM, initCRMView } from './views/crm.js';
-import { renderFinance, initFinanceView } from './views/finance.js';
-import { renderAdmin, initAdminView } from './views/admin.js';
+import { renderBusiness, initBusinessView, reloadBusinessData } from './views/business.js';
+import { renderCRM, initCRMView, reloadCRMData } from './views/crm.js';
+import { renderFinance, initFinanceView, reloadFinanceData } from './views/finance.js';
+import { renderAdmin, initAdminView, reloadAdminData } from './views/admin.js';
 import { syncAllData } from './supabase.js';
 
 // DOM Elements
@@ -213,8 +213,14 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebarBackdrop.addEventListener('click', closeSidebar);
   }
 
-  // Sync data from Supabase, then load Chart.js and navigate
+  // Sync data from Supabase, then reload modules and navigate
   syncAllData().then(() => {
+    // Reload all module data from localStorage (now synced from Supabase)
+    reloadBusinessData();
+    reloadCRMData();
+    reloadFinanceData();
+    reloadAdminData();
+
     // Load Chart.js via script tag for simplicity in prototype, or bundle it
     const chartScript = document.createElement('script');
     chartScript.src = 'https://cdn.jsdelivr.net/npm/chart.js';

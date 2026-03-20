@@ -13,6 +13,11 @@ function saveUsers() {
   saveData('admin_users', users);
 }
 
+export function reloadAdminData() {
+  const stored = localStorage.getItem('admin_users');
+  if (stored) users = JSON.parse(stored);
+}
+
 export function renderAdmin() {
   return `
     <div class="animate-fade">

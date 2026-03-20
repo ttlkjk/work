@@ -98,6 +98,11 @@ function saveClientsToStorage() {
   saveData('crm_clients', clients);
 }
 
+export function reloadCRMData() {
+  const stored = localStorage.getItem('crm_clients');
+  if (stored) clients = JSON.parse(stored);
+}
+
 export function renderCRM() {
   return `
     <div class="animate-fade">

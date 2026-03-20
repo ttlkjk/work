@@ -76,6 +76,11 @@ function saveProjects() {
   saveData('projects', projects);
 }
 
+export function reloadBusinessData() {
+  const stored = localStorage.getItem('projects');
+  if (stored) projects = JSON.parse(stored);
+}
+
 function renderGantt(scale) {
   const colCount = scale === 'monthly' ? 12 : scale === 'weekly' ? 8 : 7;
   

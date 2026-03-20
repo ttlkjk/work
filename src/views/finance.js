@@ -69,6 +69,15 @@ function saveHospitalGoals() {
   saveData('hospitalGoals', hospitalGoals);
 }
 
+export function reloadFinanceData() {
+  const storedItems = localStorage.getItem('financeItems');
+  if (storedItems) financeItems = JSON.parse(storedItems);
+  const storedSummary = localStorage.getItem('financeSummary');
+  if (storedSummary) summaryData = JSON.parse(storedSummary);
+  const storedGoals = localStorage.getItem('hospitalGoals');
+  if (storedGoals) hospitalGoals = JSON.parse(storedGoals);
+}
+
 export function renderHospitalGoals() {
   return hospitalGoals.map(h => {
     const currentAmount = financeItems
