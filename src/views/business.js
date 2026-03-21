@@ -91,7 +91,7 @@ function renderGantt(scale) {
     return nd;
   };
 
-  const todayStr = '2026-03-18';
+  const todayStr = new Date().toISOString().split('T')[0];
   const today = normalizeDate(todayStr);
   const Monday = normalizeDate(today);
   const dayOfWeek = today.getDay() === 0 ? 7 : today.getDay(); // 1 (Mon) - 7 (Sun)
@@ -430,8 +430,9 @@ export function initBusinessView() {
       document.getElementById('edit-schedule-content').value = '';
       document.getElementById('edit-schedule-desc').value = '';
       document.getElementById('edit-color').value = ganttPalette[0]; 
-      document.getElementById('edit-start-date').value = '2026-03-18';
-      document.getElementById('edit-start-end').value = '2026-03-20';
+      document.getElementById('edit-start-date').value = new Date().toISOString().split('T')[0];
+      const nextWeek = new Date(); nextWeek.setDate(nextWeek.getDate() + 2);
+      document.getElementById('edit-start-end').value = nextWeek.toISOString().split('T')[0];
     } else {
       const p = projects.find(x => x.id === id);
       if (p) {
@@ -481,8 +482,8 @@ export function initBusinessView() {
     if (isNewSchedule) {
       document.getElementById('edit-schedule-content').value = '';
       document.getElementById('edit-schedule-desc').value = '';
-      document.getElementById('edit-start-date').value = startDate || '2026-03-18';
-      document.getElementById('edit-start-end').value = startDate || '2026-03-18';
+      document.getElementById('edit-start-date').value = startDate || new Date().toISOString().split('T')[0];
+      document.getElementById('edit-start-end').value = startDate || new Date().toISOString().split('T')[0];
       
       // Auto-assign next color based on LAST schedule's color for better variety
       let nextIndex = 0;
