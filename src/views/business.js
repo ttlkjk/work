@@ -81,7 +81,7 @@ export function reloadBusinessData() {
   if (stored) projects = JSON.parse(stored);
 }
 
-function renderGantt(scale) {
+function renderGantt(scale, weekOffset = 0) {
   const colCount = scale === 'monthly' ? 12 : scale === 'weekly' ? 8 : 7;
   
   // Normalize to local midnight
@@ -95,7 +95,7 @@ function renderGantt(scale) {
   const today = normalizeDate(todayStr);
   const Monday = normalizeDate(today);
   const dayOfWeek = today.getDay() === 0 ? 7 : today.getDay(); // 1 (Mon) - 7 (Sun)
-  Monday.setDate(today.getDate() - (dayOfWeek - 1));
+  Monday.setDate(today.getDate() - (dayOfWeek - 1) + (weekOffset * 7));
 
   const headers = [];
   const dateMap = [];
@@ -240,10 +240,18 @@ export function renderBusiness() {
       <!-- Scale Toggle Controls -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
         <h3 style="font-size: 1.1rem; font-weight: 600;">프로젝트 로드맵</h3>
-        <div class="scale-controls" style="display: flex; background: rgba(255,255,255,0.05); padding: 4px; border-radius: 8px; border: 1px solid var(--glass-border);">
-          <button class="scale-btn active" data-scale="daily" style="background: var(--secondary-accent); color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">일별</button>
-          <button class="scale-btn" data-scale="weekly" style="background: transparent; color: var(--text-muted); border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.2s;">주별</button>
-          <button class="scale-btn" data-scale="monthly" style="background: transparent; color: var(--text-muted); border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.2s;">월별</button>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <!-- Week Navigation (daily view only) -->
+          <div id="week-nav" style="display: flex; align-items: center; gap: 0.5rem;">
+            <button id="prev-week-btn" style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--glass-border); padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'"><i class="fa-solid fa-chevron-left"></i></button>
+            <span id="week-label" style="font-size: 0.82rem; color: var(--text-muted); min-width: 120px; text-align: center; font-weight: 500;">이번 주</span>
+            <button id="next-week-btn" style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--glass-border); padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+          <div class="scale-controls" style="display: flex; background: rgba(255,255,255,0.05); padding: 4px; border-radius: 8px; border: 1px solid var(--glass-border);">
+            <button class="scale-btn active" data-scale="daily" style="background: var(--secondary-accent); color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">일별</button>
+            <button class="scale-btn" data-scale="weekly" style="background: transparent; color: var(--text-muted); border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.2s;">주별</button>
+            <button class="scale-btn" data-scale="monthly" style="background: transparent; color: var(--text-muted); border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.2s;">월별</button>
+          </div>
         </div>
       </div>
 
@@ -257,7 +265,7 @@ export function renderBusiness() {
       </div>
 
       <div id="gantt-daily" class="gantt-view glass-card" style="padding: 1.5rem; overflow-x: auto;">
-        ${renderGantt('daily')}
+        ${renderGantt('daily', 0)}
       </div>
 
       <!-- ==================================
@@ -353,13 +361,34 @@ export function initBusinessView() {
   let currentScheduleId = null;
   let isNewProject = false;
   let isNewSchedule = false;
+  let weekOffset = 0;
+
+  const getWeekLabel = (offset) => {
+    const today = new Date();
+    const dayOfWeek = today.getDay() === 0 ? 7 : today.getDay();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - (dayOfWeek - 1) + (offset * 7));
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    const fmt = (d) => `${d.getMonth() + 1}/${d.getDate()}`;
+    if (offset === 0) return `이번 주 (${fmt(monday)}~${fmt(sunday)})`;
+    if (offset === 1) return `다음 주 (${fmt(monday)}~${fmt(sunday)})`;
+    if (offset === -1) return `지난 주 (${fmt(monday)}~${fmt(sunday)})`;
+    return `${offset > 0 ? '+' : ''}${offset}주 (${fmt(monday)}~${fmt(sunday)})`;
+  };
+
+  const updateWeekLabel = () => {
+    const label = document.getElementById('week-label');
+    if (label) label.textContent = getWeekLabel(weekOffset);
+  };
 
   const refreshGantt = () => {
     views.forEach(view => {
       const scale = view.id.replace('gantt-', '');
-      view.innerHTML = renderGantt(scale);
+      view.innerHTML = renderGantt(scale, scale === 'daily' ? weekOffset : 0);
       view.style.display = scale === activeScale ? 'block' : 'none';
     });
+    updateWeekLabel();
     // Re-bind listeners after innerHTML change
     bindGridListeners();
   };
@@ -525,9 +554,32 @@ export function initBusinessView() {
       btn.classList.add('active');
 
       activeScale = btn.getAttribute('data-scale');
+      // Show week nav only in daily view
+      const weekNav = document.getElementById('week-nav');
+      if (weekNav) weekNav.style.display = activeScale === 'daily' ? 'flex' : 'none';
       refreshGantt();
     });
   });
+
+  // 2. Prev/Next Week Buttons
+  const prevWeekBtn = document.getElementById('prev-week-btn');
+  const nextWeekBtn = document.getElementById('next-week-btn');
+
+  if (prevWeekBtn) {
+    prevWeekBtn.addEventListener('click', () => {
+      weekOffset--;
+      refreshGantt();
+    });
+  }
+  if (nextWeekBtn) {
+    nextWeekBtn.addEventListener('click', () => {
+      weekOffset++;
+      refreshGantt();
+    });
+  }
+
+  // Initialize week label
+  updateWeekLabel();
 
   // New Project
   if (newProjectBtn) {
