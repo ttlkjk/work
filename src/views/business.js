@@ -83,7 +83,7 @@ export function reloadBusinessData() {
 
 function renderGantt(scale, weekOffset = 0) {
   const colCount = scale === 'monthly' ? 12 : scale === 'weekly' ? 8 : 7;
-  
+
   // Normalize to local midnight
   const normalizeDate = (d) => {
     const nd = new Date(d);
@@ -93,45 +93,50 @@ function renderGantt(scale, weekOffset = 0) {
 
   const todayStr = new Date().toISOString().split('T')[0];
   const today = normalizeDate(todayStr);
-  const Monday = normalizeDate(today);
-  const dayOfWeek = today.getDay() === 0 ? 7 : today.getDay(); // 1 (Mon) - 7 (Sun)
-  Monday.setDate(today.getDate() - (dayOfWeek - 1) + (weekOffset * 7));
 
   const headers = [];
   const dateMap = [];
 
   if (scale === 'daily') {
+    const dayOfWeek = today.getDay() === 0 ? 7 : today.getDay();
+    const Monday = new Date(today);
+    Monday.setDate(today.getDate() - (dayOfWeek - 1) + (weekOffset * 7));
     const days = ['월', '화', '수', '목', '금', '토', '일'];
     for (let i = 0; i < 7; i++) {
       const d = new Date(Monday);
       d.setDate(Monday.getDate() + i);
-      const isToday = d.getTime() === today.getTime();
+      const isToday = normalizeDate(d).getTime() === today.getTime();
       headers.push(`${days[i]}(${d.getDate()})${isToday ? ' [오늘]' : ''}`);
       dateMap.push({ start: normalizeDate(d), end: normalizeDate(d) });
     }
   } else if (scale === 'weekly') {
+    // weekOffset shifts by 8-week blocks
+    const dayOfWeek = today.getDay() === 0 ? 7 : today.getDay();
+    const Monday = new Date(today);
+    Monday.setDate(today.getDate() - (dayOfWeek - 1) + (weekOffset * 8 * 7));
     for (let i = 0; i < 8; i++) {
-        const d = new Date(Monday);
-        d.setDate(Monday.getDate() + (i * 7));
-        const month = d.getMonth() + 1;
-        // Approximation of week-in-month
-        const weekNum = Math.ceil(d.getDate() / 7);
-        headers.push(`${month}월 ${weekNum}주`);
-        const weekEnd = new Date(d);
-        weekEnd.setDate(d.getDate() + 6);
-        dateMap.push({ start: normalizeDate(d), end: normalizeDate(weekEnd) });
+      const d = new Date(Monday);
+      d.setDate(Monday.getDate() + (i * 7));
+      const month = d.getMonth() + 1;
+      const weekNum = Math.ceil(d.getDate() / 7);
+      headers.push(`${month}월 ${weekNum}주`);
+      const weekEnd = new Date(d);
+      weekEnd.setDate(d.getDate() + 6);
+      dateMap.push({ start: normalizeDate(d), end: normalizeDate(weekEnd) });
     }
   } else {
+    // weekOffset shifts by year for monthly view
     const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-    const currentYear = today.getFullYear();
+    const targetYear = today.getFullYear() + weekOffset;
     for (let i = 0; i < 12; i++) {
       headers.push(months[i]);
-      dateMap.push({ 
-        start: normalizeDate(new Date(currentYear, i, 1)), 
-        end: normalizeDate(new Date(currentYear, i + 1, 0)) 
+      dateMap.push({
+        start: normalizeDate(new Date(targetYear, i, 1)),
+        end: normalizeDate(new Date(targetYear, i + 1, 0))
       });
     }
   }
+
 
   let html = `
     <div style="display: grid; grid-template-columns: 200px repeat(${colCount}, 1fr); gap: 1px; background: var(--glass-border); border-radius: 12px; overflow: hidden; border: 1px solid var(--glass-border);">
@@ -364,17 +369,35 @@ export function initBusinessView() {
   let weekOffset = 0;
 
   const getWeekLabel = (offset) => {
-    const today = new Date();
-    const dayOfWeek = today.getDay() === 0 ? 7 : today.getDay();
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - (dayOfWeek - 1) + (offset * 7));
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
+    const now = new Date();
+    const dow = now.getDay() === 0 ? 7 : now.getDay();
     const fmt = (d) => `${d.getMonth() + 1}/${d.getDate()}`;
-    if (offset === 0) return `이번 주 (${fmt(monday)}~${fmt(sunday)})`;
-    if (offset === 1) return `다음 주 (${fmt(monday)}~${fmt(sunday)})`;
-    if (offset === -1) return `지난 주 (${fmt(monday)}~${fmt(sunday)})`;
-    return `${offset > 0 ? '+' : ''}${offset}주 (${fmt(monday)}~${fmt(sunday)})`;
+
+    if (activeScale === 'daily') {
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - (dow - 1) + (offset * 7));
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      if (offset === 0) return `이번 주 (${fmt(monday)}~${fmt(sunday)})`;
+      if (offset === 1) return `다음 주 (${fmt(monday)}~${fmt(sunday)})`;
+      if (offset === -1) return `지난 주 (${fmt(monday)}~${fmt(sunday)})`;
+      return `${offset > 0 ? '+' : ''}${offset}주 (${fmt(monday)}~${fmt(sunday)})`;
+    } else if (activeScale === 'weekly') {
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - (dow - 1) + (offset * 8 * 7));
+      const end = new Date(monday);
+      end.setDate(monday.getDate() + 55); // 8 weeks - 1 day
+      if (offset === 0) return `이번 기간 (${fmt(monday)}~${fmt(end)})`;
+      if (offset === 1) return `다음 기간 (${fmt(monday)}~${fmt(end)})`;
+      if (offset === -1) return `이전 기간 (${fmt(monday)}~${fmt(end)})`;
+      return `${offset > 0 ? '+' : ''}${offset}기간 (${fmt(monday)}~${fmt(end)})`;
+    } else {
+      const year = now.getFullYear() + offset;
+      if (offset === 0) return `올해 (${year}년)`;
+      if (offset === 1) return `내년 (${year}년)`;
+      if (offset === -1) return `작년 (${year}년)`;
+      return `${year}년`;
+    }
   };
 
   const updateWeekLabel = () => {
@@ -385,7 +408,7 @@ export function initBusinessView() {
   const refreshGantt = () => {
     views.forEach(view => {
       const scale = view.id.replace('gantt-', '');
-      view.innerHTML = renderGantt(scale, scale === 'daily' ? weekOffset : 0);
+      view.innerHTML = renderGantt(scale, weekOffset);
       view.style.display = scale === activeScale ? 'block' : 'none';
     });
     updateWeekLabel();
@@ -554,9 +577,7 @@ export function initBusinessView() {
       btn.classList.add('active');
 
       activeScale = btn.getAttribute('data-scale');
-      // Show week nav only in daily view
-      const weekNav = document.getElementById('week-nav');
-      if (weekNav) weekNav.style.display = activeScale === 'daily' ? 'flex' : 'none';
+      weekOffset = 0; // reset offset when switching scale
       refreshGantt();
     });
   });
